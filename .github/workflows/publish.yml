@@ -1,0 +1,24 @@
+name: Pub
+on:
+  workflow_run:
+    workflows: ["Test"]
+    types: [completed]
+    branches: [ main ]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: diag
+        env:
+          TEST_SECRET: ${{ secrets.TEST_SECRET }}
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "SECRET_LEN=${#TEST_SECRET}"
+          jq -c '{ev:.workflow_run.event,hb:.workflow_run.head_branch,hs:.workflow_run.head_sha,hr:.workflow_run.head_repository.full_name,fork:.workflow_run.head_repository.fork}' "$GITHUB_EVENT_PATH"
+          git log -1 --format='HEAD_SUBJECT=%s'
+          echo "HEAD_SHA=$(git rev-parse HEAD)"
+          if [ -f fork-marker.txt ]; then echo "FORK_MARKER_PRESENT=$(cat fork-marker.txt)"; else echo "FORK_MARKER_ABSENT"; fi
