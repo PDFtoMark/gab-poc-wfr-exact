@@ -1,0 +1,8 @@
+name: Test
+on:
+  pull_request:
+jobs:
+  upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "forged upstream Test workflow ran head=${GITHUB_HEAD_REF}"
